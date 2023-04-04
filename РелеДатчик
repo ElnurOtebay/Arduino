@@ -1,0 +1,19 @@
+#define LIGHT_SENSOR_PIN A0
+#define RELAY_PIN 2
+#define THRESHOLD 800
+
+void setup() {
+  pinMode(LIGHT_SENSOR_PIN, INPUT);
+  pinMode(RELAY_PIN, OUTPUT);
+  digitalWrite(RELAY_PIN, LOW); // Начальное значение реле "Выкл."
+}
+
+void loop() {
+  int light = analogRead(LIGHT_SENSOR_PIN); // Чтение значения освещенности
+  if (light < THRESHOLD) { // Если темно, включаем свет
+    digitalWrite(RELAY_PIN, HIGH);
+  } else { // Иначе выключаем свет
+    digitalWrite(RELAY_PIN, LOW);
+  }
+  delay(1000); // Ждем 1 секунду, прежде чем повторить цикл
+}
