@@ -1,0 +1,136 @@
+// Подключение необходимых библиотек
+#include <VirtualWire.h>
+
+// Определение пинов моторов
+int motorPin1 = 3;
+int motorPin2 = 5;
+int motorPin3 = 6;
+
+// Определение пинов направления моторов
+int motorDir1 = 4;
+int motorDir2 = 7;
+int motorDir3 = 8;
+
+// Определение переменных для скорости моторов
+int motorSpeed1 = 0;
+int motorSpeed2 = 0;
+int motorSpeed3 = 0;
+
+// Определение переменных для плавного пуска моторов
+int motorStartSpeed = 0;
+int motorAcceleration = 5;
+
+void setup() {
+  // Установка пинов моторов как выходов
+  pinMode(motorPin1, OUTPUT);
+  pinMode(motorPin2, OUTPUT);
+  pinMode(motorPin3, OUTPUT);
+
+  // Установка пинов направления моторов как выходов
+  pinMode(motorDir1, OUTPUT);
+  pinMode(motorDir2, OUTPUT);
+  pinMode(motorDir3, OUTPUT);
+
+  // Инициализация библиотеки VirtualWire
+  vw_setup(2000); // Скорость передачи данных в битах в секунду
+  vw_set_rx_pin(2); // Пин для приемника
+  vw_rx_start(); // Запуск приемника
+}
+
+void loop() {
+  uint8_t buf[VW_MAX_MESSAGE_LEN]; // Буфер для принятого сообщения
+  uint8_t buflen = VW_MAX_MESSAGE_LEN; // Длина буфера
+
+  if (vw_get_message(buf, &buflen)) { // Если сообщение принято
+    switch(buf[0]) { // Переключение на первый байт сообщения
+      case 'F': // Движение вперед
+        motorStartSpeed = 0;
+        motorSpeed1 = motorStartSpeed;
+        motorSpeed2 = motorStartSpeed;
+        motorSpeed3 = motorStartSpeed;
+        digitalWrite(motorDir1, HIGH);
+        digitalWrite(motorDir2, HIGH);
+        digitalWrite(motorDir3, HIGH);
+        for (int i = 0; i < buf[1]; i++) {
+          motorSpeed1 += motorAcceleration;
+          motorSpeed2 += motorAcceleration;
+                    motorSpeed3 += motorAcceleration;
+          analogWrite(motorPin1, motorSpeed1);
+          analogWrite(motorPin2, motorSpeed2);
+          analogWrite(motorPin3, motorSpeed3);
+          delay(20);
+        }
+        break;
+
+      case 'B': // Движение назад
+        motorStartSpeed = 0;
+        motorSpeed1 = motorStartSpeed;
+        motorSpeed2 = motorStartSpeed;
+        motorSpeed3 = motorStartSpeed;
+        digitalWrite(motorDir1, LOW);
+        digitalWrite(motorDir2, LOW);
+        digitalWrite(motorDir3, LOW);
+        for (int i = 0; i < buf[1]; i++) {
+          motorSpeed1 += motorAcceleration;
+          motorSpeed2 += motorAcceleration;
+          motorSpeed3 += motorAcceleration;
+          analogWrite(motorPin1, motorSpeed1);
+          analogWrite(motorPin2, motorSpeed2);
+          analogWrite(motorPin3, motorSpeed3);
+          delay(20);
+        }
+        break;
+
+      case 'L': // Движение влево
+        motorStartSpeed = 0;
+        motorSpeed1 = motorStartSpeed;
+        motorSpeed2 = motorStartSpeed;
+        motorSpeed3 = motorStartSpeed;
+        digitalWrite(motorDir1, HIGH);
+        digitalWrite(motorDir2, LOW);
+        digitalWrite(motorDir3, HIGH);
+        for (int i = 0; i < buf[1]; i++) {
+          motorSpeed1 += motorAcceleration;
+          motorSpeed2 += motorAcceleration;
+          motorSpeed3 += motorAcceleration;
+          analogWrite(motorPin1, motorSpeed1);
+          analogWrite(motorPin2, motorSpeed2);
+          analogWrite(motorPin3, motorSpeed3);
+          delay(20);
+        }
+        break;
+
+      case 'R': // Движение вправо
+        motorStartSpeed = 0;
+        motorSpeed1 = motorStartSpeed;
+        motorSpeed2 = motorStartSpeed;
+        motorSpeed3 = motorStartSpeed;
+        digitalWrite(motorDir1, LOW);
+        digitalWrite(motorDir2, HIGH);
+        digitalWrite(motorDir3, LOW);
+        for (int i = 0; i < buf[1]; i++) {
+          motorSpeed1 += motorAcceleration;
+          motorSpeed2 += motorAcceleration;
+          motorSpeed3 += motorAcceleration;
+          analogWrite(motorPin1, motorSpeed1);
+          analogWrite(motorPin2, motorSpeed2);
+          analogWrite(motorPin3, motorSpeed3);
+          delay(20);
+        }
+        break;
+
+      case 'S': // Остановка
+        motorSpeed1 = 0;
+        motorSpeed2 = 0;
+        motorSpeed3 = 0;
+        analogWrite(motorPin1, motorSpeed1);
+        analogWrite(motorPin2, motorSpeed2);
+        analogWrite(motorPin3, motorSpeed3);
+        break;
+
+      default: // Если нажата неизвестная кнопка
+        break;
+    }
+  }
+}
+
